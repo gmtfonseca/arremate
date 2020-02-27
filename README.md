@@ -2,7 +2,7 @@
 
 ## Overview
 
-Simple desktop app to visualize multiple Facebook pages on one screen, mainly used to win auctions. Comments are scrolled down every second, thus, the user does not miss any important update.
+Simple desktop app to visualize multiple Facebook pages on one screen, mainly used to track auctions. Comments are scrolled down every second, allowing the user to keep track of all bids.
 
 ## Project setup
 
