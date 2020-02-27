@@ -167,52 +167,23 @@
             circle
           ></el-button>
         </el-tooltip>
-        <el-tooltip content="Configurações">
-          <el-button
-            icon="bottom-icon el-icon-s-tools"
-            @click="onClickConfig"
-            circle
-          ></el-button>
-        </el-tooltip>
       </div>
     </div>
-
-    <el-dialog
-      title="Configurações"
-      @open="onOpenConfigDialog"
-      :visible.sync="configDialogVisible"
-      width="450px"
-    >
-      <div>
-        <el-checkbox v-model="configForm.daylightSavingTime"
-          >Horário de verão</el-checkbox
-        >
-        <p id="daylight-info">Desconta uma hora do horário regular</p>
-      </div>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="configDialogVisible = false">Cancelar</el-button>
-        <el-button type="primary" @click="onConfirmConfig">Confirmar</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import { AuctionModel } from "./auction-model";
-import { ConfigModel } from "./config-model";
 import lib from "./lib";
 
 const path = require("path");
 const electron = require("electron");
 const appPath = (electron.app || electron.remote.app).getPath("userData");
 const DB_PATH = path.join(appPath, "db.json");
-const CONFIG_PATH = path.join(appPath, "config.json");
 
 function initialState() {
   return {
     auctionModel: new AuctionModel(DB_PATH),
-    configModel: new ConfigModel(CONFIG_PATH),
     form: {
       url: "",
       date: null,
@@ -224,11 +195,7 @@ function initialState() {
     fullscreen: false,
     currTime: null,
     auctions: [],
-    autoScrollInterval: 3000,
-    configDialogVisible: false,
-    configForm: {
-      daylightSavingTime: false
-    }
+    autoScrollInterval: 3000
   };
 }
 
@@ -240,7 +207,6 @@ export default {
   },
   methods: {
     onEnter(evt) {
-      // TODO - Finish this
       const id = evt.target.getAttribute("id");
       if (id === "max-price") {
         this.onAddAuction();
@@ -349,23 +315,11 @@ export default {
         auction.reloadIgnoringCache();
       }
     },
-    onClickConfig() {
-      this.configDialogVisible = true;
-    },
-    onOpenConfigDialog() {
-      this.configForm = Object.assign(this.configForm, this.configModel.config);
-    },
-    onConfirmConfig() {
-      this.configModel.save(this.configForm);
-      this.configDialogVisible = false;
-    },
     resetForm() {
       this.form = initialState().form;
     },
     computeAuctionsCountdown() {
       let now = new Date();
-      if (this.configModel.config.daylightSavingTime)
-        now.setHours(now.getHours() - 1);
 
       for (const auction of this.auctions) {
         if (auction.date && auction.time && !auction.expired) {
@@ -393,10 +347,6 @@ export default {
     },
     computeCurrTime() {
       let currTime = new Date();
-
-      if (this.configModel.config.daylightSavingTime)
-        currTime.setHours(currTime.getHours() - 1);
-
       this.currTime = currTime.toLocaleTimeString();
     },
     setupAutoScroll() {
@@ -642,10 +592,5 @@ body {
 
 .expired-countdown {
   color: #fc988f;
-}
-
-#daylight-info {
-  font-size: 0.75rem;
-  margin-top: 0.2rem;
 }
 </style>
